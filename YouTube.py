@@ -1,34 +1,28 @@
-from pytube import YouTube
-import tkinter as tk
-from tkinter import filedialog
-
-def download_video(url, save_path):
-    try:
-        yt = YouTube(url)
-        streams = yt.streams.filter(progressive=True, file_extension="mp4")
-        highest_res_stream = streams.get_highest_resolution()
-        highest_res_stream.download(output_path=save_path)
-        print("Video Downloaded successfully!")
-
-    except Exception as e:
-        print(e)
+import random
 
 
-def open_file_dialog():
-    folder = filedialog.askdirectory()
-    if folder:
-        print(f"Selected folder: {folder}")
-    return folder
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.withdraw()
-
-    video_url = input("Please enter a YouTube url: ")
-    save_dir = open_file_dialog()
-
-    if save_dir:
-        print("Started download...")
-        download_video(video_url, save_dir)
-    else:
+def r_p_s():
+    ask = input("Do you wanna play a game? Yes or No: ").lower()
+    player_wins = 0
+    computer_wins = 0
+    ties = 0
+    while ask == "yes":
+        rps = input("Okay, get ready! \nRock, Paper, Scissors! \nSelect attack: (r) for rock, (p) for paper, (s) for scissors: ").lower()
         
-        print("Invalid save location")
+        computer = random.choice(["r", "p", "s"])
+        choice = {"r": "Rock", "p": "Paper", "s": "Scissors"}
+
+        if rps == computer:
+            ties += 1
+            print(f"You chose {choice[rps]}, Python chose {choice[computer]}, It's a Tie")
+        elif (rps == "r" and computer == "s") or (rps == "p" and computer == "r") or (rps == "s" and computer == "p"):
+            print(f"You chose {choice[rps]}, Python chose {choice[computer]}, You Win!")
+            player_wins += 1
+        else:
+            print(f"You chose {choice[rps]}, Python chose {choice[computer]}, Python Wins!")
+            computer_wins += 1
+
+        ask = input("Do you wanna play again? Yes or No ").lower()
+    print(f"Player Wins: {player_wins}   Computer Wins: {computer_wins}")
+ 
+r_p_s()
