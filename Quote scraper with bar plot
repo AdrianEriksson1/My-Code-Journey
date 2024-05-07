@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from bs4 import BeautifulSoup
+import requests
+
+tags = np.array([])
+count = np.array([])
+
+
+for page in range(1, 10):
+    url = f"https://quotes.toscrape.com/page/{page}/"
+    r = requests.get(url)
+
+    soup = BeautifulSoup(r.content, "html.parser")
+
+    page_tags = soup.find_all("a", class_="tag")
+
+    for tag in page_tags:
+        if tag.text not in tags:
+            tags = np.append(tags, tag.text)
+            count = np.append(count, 1)
+        
+        else:
+            tag_index = np.where(tags == tag.text)
+            count[tag_index] += 1
+
+
+def get_top_tags(number_of_tags):
+    top_tag_indices = np.argsort(count)[-number_of_tags:]
+    return top_tag_indices
+
+top_tag_indices = get_top_tags(5)
+
+
+plt.bar(tags[top_tag_indices], count[top_tag_indices])
+plt.title("Top quote tags")
+plt.ylabel(f"Of a total number of {int(sum(num_of_tags for num_of_tags in count))} tags")
+plt.xlabel("Tags")
+plt.show()
