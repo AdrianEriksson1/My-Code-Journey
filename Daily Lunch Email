@@ -1,0 +1,61 @@
+import logging
+import azure.functions as func
+import datetime
+import requests
+import bs4 as BeautifulSoup
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+app = func.FunctionApp()
+
+@app.schedule(schedule="0 0 19 * * 1-5", arg_name="myTimer", run_on_startup=True,
+              use_monitor=False) 
+def LunchEmail(myTimer: func.TimerRequest) -> None:
+    if myTimer.past_due:
+        logging.info('The timer is past due!')
+        url = "https://skolmaten.se/blackebergs-gymnaium/"
+        r = requests.get(url)
+
+        soup = BeautifulSoup(r.content, "html.parser")
+
+        lunch = soup.find_all("div", class_="row")
+
+
+        # Email configuration
+        sender_email = ''
+        receiver_email = ''
+        password = 'isuocnraveahjmyb'
+
+        # Create message
+        message = MIMEMultipart()
+        message['From'] = sender_email
+        message['To'] = receiver_email
+        message['Subject'] = 'Dagens Lunch'
+
+        today = datetime.datetime.now().strftime("%A")
+
+        weekdays = {"Monday":"Måndag", "Tuesday":"Tisdag", "Wednesday":"Onsdag", "Thursday":"Torsdag", "Friday":"Fredag"}
+
+        today = weekdays[today]
+
+
+        for todays_lunch in lunch:
+            if today in todays_lunch.text:
+                body = todays_lunch.text
+
+        message.attach(MIMEText(body, 'plain'))
+
+            # Connect to SMTP server and send email
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)  # Replace with your SMTP server and port
+            server.starttls()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, message.as_string())
+            print('Email sent successfully!')
+        except Exception as e:
+            print('Failed to send email:', str(e))
+        finally:
+            server.quit()
+
+    logging.info('Python timer trigger function executed.')
