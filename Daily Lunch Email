@@ -25,7 +25,7 @@ def LunchEmail(myTimer: func.TimerRequest) -> None:
         # Email configuration
         sender_email = ''
         receiver_email = ''
-        password = 'isuocnraveahjmyb'
+        password = ''
 
         # Create message
         message = MIMEMultipart()
